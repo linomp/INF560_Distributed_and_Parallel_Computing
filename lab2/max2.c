@@ -13,7 +13,7 @@ int main(int argc, char **argv)
   int temp;
   double t1, t2;
 
-  int *partials;
+  int *partials; // TODO: better approach, no extra array...
   int t;
   MPI_Status status;
 
