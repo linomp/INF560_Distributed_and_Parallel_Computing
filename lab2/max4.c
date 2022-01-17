@@ -102,24 +102,6 @@ int main(int argc, char **argv)
     printf("\n");
 #endif
 
-    // distribute work to the other ranks/processes
-    /*int work = m;
-    i = 1;
-    while (work > 0)
-    {
-      // Round-Robin:
-      // wrap around the rank parameter if number of arrays > number of processes
-      int dest = (i % (size));
-      if (dest == 0)
-        continue;
-
-      printf("Rank %d sending arrays[%d] to rank %d\n", rank, i - 1, dest);
-
-      MPI_Send(arrays[i - 1], n, MPI_INT, dest, i - 1, MPI_COMM_WORLD);
-      work--;
-      i++;
-    }*/
-
     if (m <= size)
     {
       // Round-Robin:
@@ -129,6 +111,8 @@ int main(int argc, char **argv)
         MPI_Send(arrays[i % m], n, MPI_INT, (i + 1), i % m, MPI_COMM_WORLD);
       }
     }
+
+    // TO-DO: arrays > ranks??
 
     // write results as processes send them
     for (i = 0; i < m; i++)
