@@ -23,7 +23,6 @@ int main(int argc, char **argv)
   int *array;
   int temp;
   MPI_Status status;
-  MPI_Request *requests;
 
   double t1, t2;
 
@@ -68,13 +67,6 @@ int main(int argc, char **argv)
     if (arrays == NULL)
     {
       fprintf(stderr, "Unable to allocate %d elements for data arrays \n", m);
-      return 1;
-    }
-
-    requests = malloc(sizeof(MPI_Request) * size);
-    if (requests == NULL)
-    {
-      fprintf(stderr, "Unable to allocate %d elements for requests \n", size);
       return 1;
     }
 
@@ -128,13 +120,13 @@ int main(int argc, char **argv)
       i++;
     }*/
 
-    if (m < size)
+    if (m <= size)
     {
       // Round-Robin:
       // wrap around the array idx if number of processes > arrays
-      for (i = 1; i < size; i++)
+      for (i = 0; i < size - 1; i++)
       {
-        MPI_Isend(arrays[i % m], n, MPI_INT, i, i, MPI_COMM_WORLD, &requests[i]);
+        MPI_Send(arrays[i % m], n, MPI_INT, (i + 1), i % m, MPI_COMM_WORLD);
       }
     }
 
