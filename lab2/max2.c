@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   srand48(s);
 
   /* Allocate the array */
-  partials = malloc(sizeof(int) * n);
+  partials = malloc(sizeof(int) * size);
   if (partials == NULL)
   {
     fprintf(stderr, "Unable to allocate %d elements for partials array\n", n);
