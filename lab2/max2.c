@@ -13,7 +13,7 @@ int main(int argc, char **argv)
   int temp;
   double t1, t2;
 
-  int *partials; // TODO: better approach, no extra array...
+  int *partials; // extra array to hold partial results
   int t;
   MPI_Status status;
 
@@ -39,13 +39,19 @@ int main(int argc, char **argv)
   n = atoi(argv[2]);
   srand48(s);
 
-  partials = calloc(size, sizeof(int));
+  /* Allocate the array */
+  partials = malloc(sizeof(int) * n);
+  if (partials == NULL)
+  {
+    fprintf(stderr, "Unable to allocate %d elements for partials array\n", n);
+    return 1;
+  }
 
   /* Allocate the array */
   tab = malloc(sizeof(int) * n);
   if (tab == NULL)
   {
-    fprintf(stderr, "Unable to allocate %d elements\n", n);
+    fprintf(stderr, "Unable to allocate %d elements for tab\n", n);
     return 1;
   }
 
@@ -58,9 +64,12 @@ int main(int argc, char **argv)
   /* start the measurement */
   t1 = MPI_Wtime();
 
-  /* search for the max value */
-  max = tab[(rank * n / size)];
-  for (i = (rank * n / size); i < ((rank * n / size) + (n / size)); i++)
+  /* search for the max value in the assigned array chunk */
+  long chunk_size = n / size;
+  long chunk_init = rank * chunk_size;
+  max = tab[chunk_init];
+
+  for (i = chunk_init; i < (chunk_init + chunk_size); i++)
   {
     if (tab[i] > max)
     {
@@ -71,10 +80,9 @@ int main(int argc, char **argv)
   if (rank == 0)
   {
     partials[0] = max;
-
     for (t = 1; t < size; t++)
     {
-      MPI_Recv(&temp, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      MPI_Recv(&temp, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
       partials[t] = temp;
 #if DEBUG
       for (i = 0; i < size; i++)
@@ -97,7 +105,7 @@ int main(int argc, char **argv)
   }
   else
   {
-    MPI_Send(&max, 1, MPI_DOUBLE, 0, rank, MPI_COMM_WORLD);
+    MPI_Send(&max, 1, MPI_INT, 0, rank, MPI_COMM_WORLD);
   }
 
   /* stop the measurement */
