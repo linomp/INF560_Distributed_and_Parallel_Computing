@@ -225,5 +225,33 @@ MPI_Comm_rank(MPI_Comm comm, int * rank)
   - you are guaranteed that it returns when the message is received (is like forcing Rendezvous); for debugging it helps, to assure worst case scenario. If it works, you can replace with normal send that can sometimes use eager protocol
 
 
+## 19.01
 
+### Collective communication
 
+- MPI Barrier: collective sync (applies to everything in the COMM)
+
+- Broadcast: one to all collective comm
+
+- Scatter: send diff data to other processses
+  - sent data: same size, same type
+  - useful for projects: to assign each process a sub-part of the available data
+  - useful for img filt, send 1 block to each MPI process
+  - for APM: split the text in multiple pieces
+
+- Gather: reverse of scatter.
+  - all-to-one
+
+- Allgather: almost like gather + broadcast (everyone receives all the results)
+
+- Reduction (mpi allows multiple reductions too?)
+- Reduce to all: reduction but every process has the final result
+  - example: propagate the timestep from one iteration to the others?
+
+- Per Rank data size: MPI_Scatterv
+
+### Data Parallelism
+- ghost cells: values that a rank needs to do its calc. but it's another rank's responsibility to update,
+- some point to point comms are needed once in a while
+
+- MPICH, Open MPI : official open source MPI implementations
