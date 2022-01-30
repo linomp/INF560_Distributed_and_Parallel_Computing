@@ -257,3 +257,27 @@ MPI_Comm_rank(MPI_Comm comm, int * rank)
 - MPICH, Open MPI : official open source MPI implementations
 
 ## 26.01
+Open MP: open multi-processing
+
+- indepentent from underlying architecture; as long as system abstracts it to you with a shared memory view
+- easier to share data
+- data races possible (segfaults, nondeterminism) 
+
+Threads vs Processes:
+- launching a binary: OS creates a process (stack, heap, globals, code, virtual memory view - OS then maps it to physical memory view)
+- within 1 process you can create additional threads (each own stack, heap can be accessed by all)
+
+- malloc is thread-safe
+
+- openMP worksharing directives; distribute loop iterations
+
+- parallel loop: we ned to know how many iterations we will do
+- scheduling policy: who will do what
+- by default: barrier at the end of loop
+- pragma omp for   - does not create threads, just distributes for across available threads
+
+- large chunks: less sch. overhad but less load balancing
+- small chunks: good LB byt large scheduling overhead
+
+
+
