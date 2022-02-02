@@ -84,5 +84,3 @@ int main(int argc, char **argv)
 
     return EXIT_SUCCESS;
 }
-
-// see: https://courses.cs.vt.edu/~cs4234/F13/notes/examples/pi.c

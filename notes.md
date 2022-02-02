@@ -279,5 +279,30 @@ Threads vs Processes:
 - large chunks: less sch. overhad but less load balancing
 - small chunks: good LB byt large scheduling overhead
 
+## 02.02
+
+- OpenMP Tasks: to parallelize non regular stuff (trees, graphs..)
+
+- within a task, single can be a problem
+- with untied clause: can let task to be completed by a different thread than the one that started it (more flexibliltity to OS and runtime); try to make your work possible to be executed by anyone in time
+
+- shared var before parallel region: shared in all task executions
+
+- firstprivate: the value of a is captured at the creation of the task, every task will start with its own copy having the value when the task was created
+  - everybody will have a new copy of A but the initial value is the value when the task was created.  Only private:  you get a new copy, but no idea of the initial value.
+
+- advicee for rask & regular parallelism: put default(none) as a clause - no predefined rules;  you have to tell by hand private/shared etc. bc the predeined-rules are complex to follow & check
+
+- taskwait only works at top level (if a task just creates a task; it will return immedaitely; need to wait at every level)
+
+- taskgroup: any code after it must wait for all the tasks in the group to finish executing
+
+- best practices: coarse-grain parallelism
+  - less overhead 
+  - merga parallel regions when possible?
+- rely on nowait clause when possible
+- remove rdundant barriers
+- false sharing: padding the variables to make sure they dont ent up in the same cache line and avoid unnecessary synchronizations
+
 
 
