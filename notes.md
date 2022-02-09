@@ -304,5 +304,42 @@ Threads vs Processes:
 - remove rdundant barriers
 - false sharing: padding the variables to make sure they dont ent up in the same cache line and avoid unnecessary synchronizations
 
+## 09.02
+
+Hybrid Programming
+
+- MPI: data locality, can exploit whole cluster, lower MPI calls the better perf. you can reach.
+  - memory consumption: data duplication
+  - load balancing difficult; if not anticipated before..
+
+- OpenMP: 
+  - possible to do incrementally
+  - no data duplication
+  - easier load balancing
+  - drawbacks:
+    - memory paging; data may not be so close
+    - does not fully use the cluster
+
+- Hybrid 
+  - adv: memory consumption reduction (application: less # of mpi ranks but sharing data among openmp threads,  runtime: decreasing # of mpi ranks = less pressure )
+  - there are still production applications only on MPI
+
+  - every mpi rank creates a different openmp parallel region
+  - app is launched as an mpi application
+  `mpicc -fopenmp -o hello hello.c`
+
+- Domain decomposition in hybrid programming
+  - same op on diff parts of data structure
+  - coarse grain: MPI ranks
+  - finer grain: openMP team within an MPI rank
+
+### Granularity
+
+Easiest way:
+- MPI code, then add openMP for small parallel regions (loops, etc)
+- no MPI comm inside parallel region
+- 
+
+
 
 
