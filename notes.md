@@ -340,6 +340,65 @@ Easiest way:
 - no MPI comm inside parallel region
 - 
 
+## 16.02
 
+### NVIDIA GPGPU - Pascal Architecture
+
+- fine grained parallelism!
+- SIMT - single instruction multiple threads
+- each cycle, the scheduler schedules a warp (32 threads) to make them all execute the same instruction
+- going back to schedule again a same warp that was busy, there is penalization; you have to wait until they finish their previous assigned task
+- example; if we have to schedule the same warp every 4 cycles - BAD. If we have to do it every 50 - GOOD
+  
+### CUDA Programming
+- Host Side: regular C/C++; new data types and functions, API
+  
+- Device Side: CUDA langauge, new language, very close to C/C++, superset of C99
+
+- compilation toolchain: nvcc
+
+### Vector Addition example
+
+- cudaMalloc: allocates memory on the GPU!
+    - we pass addresses of "device pointers d_<>"
+- cudaMemcpy: host to device or viceversa
+- gpu executes only the kernel
+- cell by cell adition; every thread will take one cell. key aspect: how to compute "i" (thread id)
+
+### Thread Hierarchy
+
+- Grid -> Block -> Thread
+- logical view; but maps directly to how hardware is organized
+- blockDim.x, threadIdx, slide 68
+
+### Kernel Call
+`mykernel<<Dg, Db>>>(arg1, arg2, arg3)`
+- Dg: dim3 type, dim and siz of grid
+- Db: dim and size of blocks (dim 3 type)
+
+### Memory Hierarchy
+- per thread, per block, global memory
+- thread: local stack, register
+
+- for asynchronous code; most calls return immediately, call cudaTrheadSynchronize()
+- or consider streaming!
+- possible to launch multiple kernels
+
+- error handling: cudaError_t, cudaSuccess, cudaGetLastError (void return types)
+
+### Debugging
+- printf; possible but not safe. strings built and everything are returned only when there are memory transfers
+- tip: do synchronization, regulraly transfer back stuff to CPU, then check
+
+### Best Practices
+- think parallel: thousands of threads.
+- minimize data transfers host/device
+- avoid path divergence:
+  - execution time is the sum of all paths 
+  - in new generations they optimized paths, still think of it
+  -  if statement; if threads evaluate it with different outcome: next instruction for everyone is not the same. if threads are in different warp: diff instructions is ok. But if they are in same warp; a portion will be idle while one branch is executed, then everything is executed again for every branch
+
+- not too larg enumber of threads per block; multiples of 32
+- rely on optimized math functions
 
 
