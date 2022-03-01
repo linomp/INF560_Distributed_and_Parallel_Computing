@@ -12,5 +12,9 @@ It includes distributed-memory model (MPI), shared-memory model (OpenMP) and het
 ## Learning Outcomes
 Parallel Programming, Distributed Algorithms, Performance evaluation
 
+## Resources
+- [Our Final Project](https://github.com/linomp/INF560_APM_Final_Project)
+- [Course Notes](./notes.md)
+
 ------
 *Text taken from the [official course document](https://euroteq.eurotech-universities.eu/wp-content/uploads/sites/2/2021/10/Distributed-and-Parallel-Computing.pdf).*
