@@ -36,16 +36,17 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
-#include "mandelbrot-gui.h"     /* has setup(), interact() */
+#include "mandelbrot-gui.h" /* has setup(), interact() */
 #endif
 /* Default values for things. */
-#define N           2           /* size of problem space (x, y from -N to N) */
-#define NPIXELS     800         /* size of display window in pixels */
+#define N 2         /* size of problem space (x, y from -N to N) */
+#define NPIXELS 800 /* size of display window in pixels */
 
 /* Structure definition for complex numbers */
-typedef struct {
+typedef struct
+{
   double r, i;
-} complex ;
+} complex;
 
 /* Shorthand for some commonly-used types */
 typedef unsigned int uint;
@@ -53,13 +54,14 @@ typedef unsigned long ulong;
 
 /* ---- Main program ---- */
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   uint maxiter;
   double r_min = -N;
   double r_max = N;
   double i_min = -N;
   double i_max = N;
-  uint width = NPIXELS;         /* dimensions of display window */
+  uint width = NPIXELS; /* dimensions of display window */
   uint height = NPIXELS;
 #ifdef WITH_DISPLAY
   Display *display;
@@ -74,14 +76,16 @@ int main(int argc, char *argv[]) {
   double lengthsq, temp;
 
   /* Check command-line arguments */
-  if ((argc < 2) || ((argc > 2) && (argc < 5))) {
+  if ((argc < 2) || ((argc > 2) && (argc < 5)))
+  {
     fprintf(stderr, "usage:  %s maxiter [x0 y0 size]\n", argv[0]);
     return EXIT_FAILURE;
   }
 
   /* Process command-line arguments */
   maxiter = atoi(argv[1]);
-  if (argc > 2) {
+  if (argc > 2)
+  {
     double x0 = atof(argv[2]);
     double y0 = atof(argv[3]);
     double size = atof(argv[4]);
@@ -94,15 +98,16 @@ int main(int argc, char *argv[]) {
 #ifdef WITH_DISPLAY
   /* Initialize for graphical display */
   setup_return =
-    setup(width, height, &display, &win, &gc, &min_color, &max_color);
-  if (setup_return != EXIT_SUCCESS) {
+      setup(width, height, &display, &win, &gc, &min_color, &max_color);
+  if (setup_return != EXIT_SUCCESS)
+  {
     fprintf(stderr, "Unable to initialize display, continuing\n");
     abort();
   }
   /* (if not successful, continue but don't display results) */
 #else
-  min_color=0;
-  max_color=16777215;
+  min_color = 0;
+  max_color = 16777215;
 #endif
 
   struct timeval startingTime, endingTime;
@@ -111,46 +116,50 @@ int main(int argc, char *argv[]) {
   /* Calculate and draw points */
 
   /* Compute factors to scale computational region to window */
-  scale_r = (double) (r_max - r_min) / (double) width;
-  scale_i = (double) (i_max - i_min) / (double) height;
+  scale_r = (double)(r_max - r_min) / (double)width;
+  scale_i = (double)(i_max - i_min) / (double)height;
 
   /* Compute factor for color scaling */
-  scale_color = (double) (max_color - min_color) / (double) (maxiter - 1);
+  scale_color = (double)(max_color - min_color) / (double)(maxiter - 1);
 
   /* Calculate points and display */
-#pragma omp parallel for private(col,c, k, temp, z, lengthsq)
-  for (row = 0; row < height; ++row) {
+#pragma omp parallel for private(col, c, k, temp, z, lengthsq) schedule(dynamic)
+  for (row = 0; row < height; ++row)
+  {
     ulong couleur[width];
 
-    for (col = 0; col < width; ++col) {
+    for (col = 0; col < width; ++col)
+    {
       z.r = z.i = 0;
 
       /* Scale display coordinates to actual region  */
-      c.r = r_min + ((double) col * scale_r);
-      c.i = i_min + ((double) (height-1-row) * scale_i);
+      c.r = r_min + ((double)col * scale_r);
+      c.i = i_min + ((double)(height - 1 - row) * scale_i);
       /* height-1-row so y axis displays
        * with larger values at top
        */
 
       /* Calculate z0, z1, .... until divergence or maximum iterations */
       k = 0;
-      do  {
-	temp = z.r*z.r - z.i*z.i + c.r;
-	z.i = 2*z.r*z.i + c.i;
-	z.r = temp;
-	lengthsq = z.r*z.r + z.i*z.i;
-	++k;
-      } while (lengthsq < (N*N) && k < maxiter);
+      do
+      {
+        temp = z.r * z.r - z.i * z.i + c.r;
+        z.i = 2 * z.r * z.i + c.i;
+        z.r = temp;
+        lengthsq = z.r * z.r + z.i * z.i;
+        ++k;
+      } while (lengthsq < (N * N) && k < maxiter);
 
       /* Scale color and display point  */
-      couleur[col] = (ulong) ((k-1) * scale_color) + min_color;
+      couleur[col] = (ulong)((k - 1) * scale_color) + min_color;
     }
 
 #ifdef WITH_DISPLAY
 #pragma omp critical
-    for(col = 0; col<width; col++) {
-      XSetForeground (display, gc, couleur[col]);
-      XDrawPoint (display, win, gc, col, row);
+    for (col = 0; col < width; col++)
+    {
+      XSetForeground(display, gc, couleur[col]);
+      XDrawPoint(display, win, gc, col, row);
       XFlush(display);
     }
 #endif
@@ -158,27 +167,25 @@ int main(int argc, char *argv[]) {
 
 #ifdef WITH_DISPLAY
   /* Be sure all output is written */
-  XFlush (display);
+  XFlush(display);
 #endif
 
   gettimeofday(&endingTime, NULL);
-  double workingTime = ((endingTime.tv_sec-startingTime.tv_sec)*1e6 + (endingTime.tv_usec-startingTime.tv_usec))/1e6;
-
+  double workingTime = ((endingTime.tv_sec - startingTime.tv_sec) * 1e6 + (endingTime.tv_usec - startingTime.tv_usec)) / 1e6;
 
   /* Produce text output  */
   fprintf(stdout, "\n");
   fprintf(stdout, "center = (%g, %g), size = %g\n",
-	  (r_max + r_min)/2, (i_max + i_min)/2,
-	  (r_max - r_min)/2);
+          (r_max + r_min) / 2, (i_max + i_min) / 2,
+          (r_max - r_min) / 2);
   fprintf(stdout, "maximum iterations = %d\n", maxiter);
-  printf("working time: %g s\n",workingTime);
+  printf("working time: %g s\n", workingTime);
   fprintf(stdout, "\n");
 
 #ifdef WITH_DISPLAY
   /* Wait for user response, then exit program */
   interact(display, &win, width, height,
-	   r_min, r_max, i_min, i_max);
+           r_min, r_max, i_min, i_max);
 #endif
   return EXIT_SUCCESS;
 }
-
